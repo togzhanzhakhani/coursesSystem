@@ -1,9 +1,10 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
 from rest_framework import status
 from .models import Product, Purchase, Group, Lesson
-from .serializers import ProductSerializer, GroupSerializer, LessonSerializer
+from .serializers import ProductSerializer, GroupSerializer, LessonSerializer, ProductStatisticsSerializer
 
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
@@ -90,3 +91,31 @@ class LessonListAPIView(generics.ListAPIView):
             return Response({"message": "You don't have access to this product or there are no lessons available."}, status=status.HTTP_403_FORBIDDEN)
     
 
+class ProductStatisticsAPIView(generics.ListAPIView):
+    serializer_class = ProductStatisticsSerializer
+
+    def get_queryset(self):
+        products = Product.objects.all()
+        statistics = []
+        total_users = User.objects.count()
+
+        for product in products:
+            groups_count = Group.objects.filter(product=product).count()
+            max_students_per_group = product.max_students
+            total_purchases = Purchase.objects.filter(product=product).count()
+            access_percentage = (total_purchases / total_users) * 100 if total_users != 0 else 0
+
+            if total_purchases and groups_count:
+                average_fill_percentage = (total_purchases / (groups_count * max_students_per_group)) * 100
+            else:
+                average_fill_percentage = 0
+
+            statistics.append({
+                'product_name': product.name,
+                'students_count': total_purchases,
+                'groups_count': groups_count,
+                'average_fill_percentage': average_fill_percentage,
+                'access_percentage': access_percentage,
+            })
+
+        return statistics

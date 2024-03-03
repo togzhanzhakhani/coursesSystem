@@ -22,3 +22,10 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         fields = ['user', 'product']
+
+class ProductStatisticsSerializer(serializers.Serializer):
+    product_name = serializers.CharField()
+    students_count = serializers.IntegerField()
+    groups_count = serializers.IntegerField()
+    average_fill_percentage = serializers.FloatField()
+    access_percentage = serializers.FloatField()

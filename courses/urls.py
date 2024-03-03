@@ -5,4 +5,5 @@ urlpatterns = [
     path('products/', views.ProductListAPIView.as_view(), name='product-list'),
     path('purchase/<int:product_id>/', views.ProductPurchaseAPIView.as_view(), name='purchase-product'),
     path('products/<int:pk>/lessons/', views.LessonListAPIView.as_view(), name='product-lessons'),
+    path('product-statistics/', views.ProductStatisticsAPIView.as_view(), name='product-statistics'),
 ]
